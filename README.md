@@ -9,8 +9,10 @@ Grab Important Basic Information About An Android APK
 
 <h2><strong>APK Stat - Basic APK Information Grabber for Android Malware Analysis</strong></h2>
 
-APK Stat will use APK Tool to decompress and decode your APK file. With APK Stat you will get easy to read access to:
+APK Stat will use APK Tool to decompress and decode your APK file. APK Stat Will:
 <ul>
 <li> The Launcher Activity </li>
-<li> All Activities, Services, Broadcasts, Providers and Permissions Used By the APK</li>
+<li> Display All Activities, Services, Broadcasts, Providers and Permissions Used By the APK</li>
+<li> Create a Strings file from the APK</li>
+<li> Display Any Hardcoded Domains and/or IP addresses in the APK</li>
 </ul>
