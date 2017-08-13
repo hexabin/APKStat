@@ -238,7 +238,7 @@ class ManifestReader(xml.sax.ContentHandler):
 
    def displayUsage(self):
         # Display Usage Information
-        print "Usage: python apk-stats.py yourfile.apk\n\n"
+        print "Usage: python apkstat.py yourfile.apk\n\n"
         exit()
 
 
