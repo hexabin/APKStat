@@ -1,5 +1,5 @@
 # APKStat
-Grab Important Basic Information About An Android APK
+Save time during your initial analysis of an Android APK file. APK Stat will grab most of the information you need in your initial assessment right away and output the information in an easy to read set of text files.
 
 <strong>USAGE</strong>: python apkstat.py yourapkfile.apk
 
@@ -11,9 +11,8 @@ Grab Important Basic Information About An Android APK
 
 APK Stat will use APK Tool to decompress and decode your APK file. APK Stat Will:
 <ul>
-<li> Display All Activities, Services, Broadcasts, Providers and Permissions Used By the APK</li>
-<li> Display Any Hardcoded Domains and/or IP addresses in the APK</li>
-<li> Display The Launcher Activity </li>
-<li> View Strings From The APK</li>
-<li> Get An Easy To Read Overview Report Of Your APK</li>
+<li> Breaks Permissions, Activities, Activity Aliases, Services, Providers and Receivers Into Easily Readable Groups</li>
+<li> Scours All Files After Decoding For Hardcoded IP Addresses and Domain Names</li>
+<li> Single Out The Launcher Activity </li>
+<li> Automatically Creates a Strings.txt file</li>
 </ul>
