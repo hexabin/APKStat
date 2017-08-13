@@ -1,13 +1,7 @@
 # APKStat
 Save time during your initial analysis of an Android APK file. APK Stat will grab most of the information you need in your initial assessment right away and output the information in an easy to read set of text files.
 
-<strong>USAGE</strong>: python apkstat.py yourapkfile.apk
-
-
-<strong><i>Dependancy:</i></strong> APKTool - <a href="https://ibotpeaches.github.io/Apktool">https://ibotpeaches.github.io/Apktool/</a>
-
-
-<h2><strong>APK Stat - Basic APK Information Grabber for Android Malware Analysis</strong></h2>
+<h2><strong>APK Stat - Automated Information Retrieval From APKs For Initial Analysis</strong></h2>
 
 APK Stat will use APK Tool to decompress and decode your APK file. APK Stat Will:
 <ul>
@@ -16,3 +10,13 @@ APK Stat will use APK Tool to decompress and decode your APK file. APK Stat Will
 <li> Single Out The Launcher Activity </li>
 <li> Automatically Creates a Strings.txt file</li>
 </ul>
+
+<h4><strong>Download Instructions:</strong></h4>
+<i>Linux:</i> 
+git clone https:// github.com/hexabin/APKStat
+
+cd APKStat
+
+<strong>USAGE</strong>: python apkstat.py yourapkfile.apk
+
+<strong><i>Dependancy:</i></strong> APKTool - <a href="https://ibotpeaches.github.io/Apktool">https://ibotpeaches.github.io/Apktool/</a>
