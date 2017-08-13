@@ -1,6 +1,7 @@
 import xml.sax
 import sys
 import os
+import re
 
 class ManifestReader(xml.sax.ContentHandler):
    # Control Variables
@@ -15,11 +16,13 @@ class ManifestReader(xml.sax.ContentHandler):
    numberOfProviders=0
    numberOfActivityAliases=0
    numberOfPermissionsRequested=0
+   numberOfPossibleDomains=0
+   numberOfPossibleIPs=0
 
    # File and Report Variables
    report = ""
    apkfilename=""
-   truefilename = ""
+   decodedFolderLocation = ""
    manifestlocation = ""
 
    # Arrays for storing names of important classes
@@ -33,7 +36,7 @@ class ManifestReader(xml.sax.ContentHandler):
    def __init__(self):
       # Track File and Folder Names
       self.apkfilename = ""
-      self.truefilename = ""
+      self.decodedFolderLocation = ""
 
       # Check The State Of The Activity Element
       self.isActivityOpen=False;
@@ -50,6 +53,8 @@ class ManifestReader(xml.sax.ContentHandler):
       self.numberOfProviders=0
       self.numberOfActivityAliases=0
       self.numberOfPermissionsRequested=0
+      self.numberOfPossibleDomains=0
+      self.numberOfPossibleIPs=0
 
       # Track The Names Of Important Classes in Arrays
       self.activityNames = ['']
@@ -122,25 +127,15 @@ class ManifestReader(xml.sax.ContentHandler):
 	    self.isActivityOpen=False
 	    currentActivityName=""
 
-   def writeURLsAndIPs(self):
-        #Listing all domains and IPs found
-        print "\n[3] Listing All Domains Found:\n"
-        print ""
+   def APKStat_Cleanup(self):
+        print "[*] Report.txt Created!\n\n"
+        print "[*] Scanning Files For IPs. Please Wait...\n\n"
+	self.scanForIPs(self.decodedFolderLocation)
 
-        # Grep Domains and IPs from the APK file
-        cmd = "grep -oE '[[:alnum:]]+[.][[:alnum:]_.-]+' " + self.apkfilename + " | sed 's/www.//' >> domains.txt"
-        os.system(cmd)
+	print "[*] Scanning Files For Domains. Please Wait...\n\n"
+	self.scanForDomains(self.decodedFolderLocation)
 
-        # Write the domains and IPs found to report (if any)
-	self.report.write("\n\n Domains & IPs Extracted From Strings\n")
-        domainText = open("domains.txt", 'r')
-        for lines in domainText:
-            if "Binary file" not in lines:
-                self.report.write(lines + "\n")
-                print "\n\n Domains: " + lines
-
-        os.system("rm domains.txt")
-        self.report.close()
+	print "[*] Finishing..."
 
    def printStats(self):
        # Print Stats On Screen At Completion
@@ -151,6 +146,9 @@ class ManifestReader(xml.sax.ContentHandler):
        print "Number Of Providers: " + str(self.numberOfProviders)
        print "Number Of Services: " + str(self.numberOfServices)
        print "Number Of Activity Aliases: " + str(self.numberOfActivityAliases)
+       print ""
+       print "Number Of Possible IPs: " + str(self.numberOfPossibleIPs)
+       print "Number Of Possible Domains: " + str(self.numberOfPossibleDomains)
        print ""
        print "[2] Launcher Activity\n"
        print "Launcher Activity: " + self.launcherActivity
@@ -205,13 +203,59 @@ class ManifestReader(xml.sax.ContentHandler):
 
    def writeReport(self):
        # Write Stats To Report
-       self.report.write("Number Of Permissions Requested: " + str(self.numberOfPermissionsRequested) + "\n")
+       self.report.write("\n\nNumber Of Permissions Requested: " + str(self.numberOfPermissionsRequested) + "\n")
        self.report.write("Number Of Activities: " + str(self.numberOfActivities) + "\n")
        self.report.write("Number Of Receivers: " + str(self.numberOfReceivers) + "\n")
        self.report.write("Number Of Providers: " + str(self.numberOfProviders) + "\n")
        self.report.write("Number Of Services: " + str(self.numberOfServices) + "\n")
-       self.report.write("Number Of Activity Aliases: " + str(self.numberOfActivityAliases) + "\n\n")
+       self.report.write("Number Of Activity Aliases: " + str(self.numberOfActivityAliases) + "\n")
+       self.report.write("Number Of Possible Domains: " + str(self.numberOfPossibleDomains) + "\n")
+       self.report.write("Number Of Possible IPs: " + str(self.numberOfPossibleIPs) + "\n\n")
        self.report.write("Launcher Activity: " + self.launcherActivity + "\n\n")
+       self.report.close()
+
+   def scanForIPs(self, directory):
+	   for name in os.listdir(directory):
+		   if (os.path.isdir(directory + "/" + name)):
+		  	   self.scanForIPs(directory + "/" + name)
+		   else:
+			   ipaddr_filename = name.replace("$", "_") + ".txt"
+
+			   os.system("grep -oE \"\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b\" " + directory + "/" + name + " >> " + ipaddr_filename)
+		 	   try:
+	                       	   greppedData = open(ipaddr_filename, "rb")
+
+				   for string in greppedData:
+					   if(len(string) > 0):
+                			           domain = open("recoveredips.txt", "a")
+						   domain.write("File: " + directory + "/" + name + " IP: " + string)
+						   domain.close()
+						   self.numberOfPossibleIPs = self.numberOfPossibleIPs + 1
+
+				   greppedData.close()
+				   os.remove(ipaddr_filename)
+			   except:
+				   print "ERROR: " + directory + "/" + name + " Cannot Be Opened!"
+
+   def scanForDomains(self, directory):
+           for name in os.listdir(directory):
+                   if (os.path.isdir(directory + "/" + name)):
+                           self.scanForDomains(directory + "/" + name)
+                   else:
+                           scannedFile = open(directory + "/" + name, "rb")
+
+    			   for line in scannedFile:
+				   pos_domain = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', line)
+				   if (len(pos_domain) > 0):
+					   domainFile = open("recovereddomains.txt", "a")
+					   for posdom in pos_domain:
+						   if ("android.com" not in posdom):
+							   domainFile.write("Location: " + directory + "/"  + name + " - Domain: " + posdom + "\n\n")
+							   self.numberOfPossibleDomains = self.numberOfPossibleDomains + 1
+
+					   domainFile.close()
+			   scannedFile.close()
+
 
    def createStringsFile(self):
        # Create a Strings File from APK
@@ -225,8 +269,8 @@ class ManifestReader(xml.sax.ContentHandler):
         os.system(unzip_apk_str)
 
         # Remove the .apk for the true filename
-        self.truefilename = self.apkfilename[0:-4]
-        self.manifestlocation = self.truefilename + "/AndroidManifest.xml"
+        self.decodedFolderLocation = self.apkfilename[0:-4]
+        self.manifestlocation = self.decodedFolderLocation + "/AndroidManifest.xml"
 
    def getManifestLocation(self):
         # Return the location to the AndroidManifest.xml
@@ -238,7 +282,7 @@ class ManifestReader(xml.sax.ContentHandler):
 
    def displayUsage(self):
         # Display Usage Information
-        print "Usage: python apkstat.py yourfile.apk\n\n"
+        print "Usage: python apk-stats.py yourfile.apk\n\n"
         exit()
 
 
@@ -270,11 +314,7 @@ if ( __name__ == "__main__"):
    # Parse the AndroidManifest.xml
    parser.parse(Handler.getManifestLocation())
 
-   # Print Stats On Screen
-   Handler.printStats()
-
    # Write Report
-   Handler.writeReport()
    Handler.writePermissionsToReport()
    Handler.writeActivitiesToReport()
    Handler.writeServicesToReport()
@@ -283,9 +323,14 @@ if ( __name__ == "__main__"):
    Handler.writeActivityAliasesToReport()
 
    # Write Domains and IPs to Report
-   Handler.writeURLsAndIPs()
+   Handler.APKStat_Cleanup()
 
    # Create Strings File
    Handler.createStringsFile()
 
-   print "\n\n[*] Report Created : report.txt\n"
+   # Write Final Report
+   Handler.writeReport()
+
+   # Display Final Data On Screen
+   Handler.printStats()
+
