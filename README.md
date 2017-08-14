@@ -17,6 +17,8 @@ git clone https:// github.com/hexabin/APKStat
 
 cd APKStat
 
+Place your Analysis APK file in the APKStat directory before running
+
 <strong>USAGE</strong>: python apkstat.py yourapkfile.apk
 
 <strong><i>Dependancy:</i></strong> APKTool - <a href="https://ibotpeaches.github.io/Apktool">https://ibotpeaches.github.io/Apktool/</a>
