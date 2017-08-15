@@ -13,10 +13,12 @@ APK Stat will use APK Tool to decompress and decode your APK file. APK Stat Will
 
 <h4><strong>Download Instructions:</strong></h4>
 <i>Linux:</i> 
-git clone https:// github.com/hexabin/APKStat
-
+```
+git clone https://github.com/hexabin/APKStat
 cd APKStat
-
+wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
+wget "https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.2.4.jar" -O apktool.jar
+```
 Place your Analysis APK file in the APKStat directory before running
 
 <strong>USAGE</strong>: python apkstat.py yourapkfile.apk
